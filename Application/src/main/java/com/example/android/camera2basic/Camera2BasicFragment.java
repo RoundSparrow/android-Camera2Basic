@@ -301,8 +301,10 @@ public class Camera2BasicFragment extends Fragment
                         // ToDo: BUG - See Issue https://github.com/googlesamples/android-Camera2Basic/issues/33
                         mState = STATE_PICTURE_TAKEN;
                         captureStillPicture();
+                    } else if (CaptureResult.CONTROL_AF_STATE_PASSIVE_UNFOCUSED == afState) {
+                        Log.i(TAG, "takePicture STATE_WAITING_LOCK afState CONTROL_AF_STATE_PASSIVE_UNFOCUSED - waiting on Auto-Focus?");
                     } else {
-                        Log.w(TAG, "takePicture STATE_WAITING_LOCK aeState UNMATCHED!! " + afState);
+                        Log.w(TAG, "takePicture STATE_WAITING_LOCK afState UNMATCHED!! " + afState);
                     }
                     break;
                 }
@@ -848,21 +850,22 @@ public class Camera2BasicFragment extends Fragment
             int rotation = cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION);
             captureBuilder.set(CaptureRequest.JPEG_ORIENTATION, rotation);
 
-            CameraCaptureSession.CaptureCallback CaptureCallback
+            CameraCaptureSession.CaptureCallback captureCallback
                     = new CameraCaptureSession.CaptureCallback() {
 
                 @Override
                 public void onCaptureCompleted(@NonNull CameraCaptureSession session,
                                                @NonNull CaptureRequest request,
                                                @NonNull TotalCaptureResult result) {
+                    // ToDo: runtime testing shows that this message actually shows "Saved" before the actual save is completed. Say "Captured" instead?
                     showToast("Saved: " + mFile);
-                    Log.d(TAG, mFile.toString());
+                    Log.d(TAG, "Saved: " + mFile.toString());
                     unlockFocus();
                 }
             };
 
             mCaptureSession.stopRepeating();
-            mCaptureSession.capture(captureBuilder.build(), CaptureCallback, null);
+            mCaptureSession.capture(captureBuilder.build(), captureCallback, null);
         } catch (CameraAccessException e) {
             e.printStackTrace();
         } catch (IllegalArgumentException | SecurityException ex) {
@@ -942,6 +945,7 @@ public class Camera2BasicFragment extends Fragment
 
         @Override
         public void run() {
+            Log.d(TAG, "ImageSaver Runnable on " + Thread.currentThread());
             ByteBuffer buffer = mImage.getPlanes()[0].getBuffer();
             byte[] bytes = new byte[buffer.remaining()];
             buffer.get(bytes);
