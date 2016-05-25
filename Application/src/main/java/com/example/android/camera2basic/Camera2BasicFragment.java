@@ -27,10 +27,13 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v13.app.FragmentCompat;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
+
+import org.greenrobot.eventbus.EventBus;
 
 
 public class Camera2BasicFragment extends Fragment
@@ -38,6 +41,11 @@ public class Camera2BasicFragment extends Fragment
 
     private static final int REQUEST_CAMERA_PERMISSION = 1;
     private static final String FRAGMENT_DIALOG = "dialog";
+
+    /**
+     * Tag for the {@link Log}.
+     */
+    private static final String TAG = "Camera2BasicFragment";
 
     private static Camera2Session cameraSession;
 
@@ -80,6 +88,8 @@ public class Camera2BasicFragment extends Fragment
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        Log.i(TAG, "onActivityCreated");
+        EventBus.getDefault().register(this);
         cameraSession = new Camera2Session(getActivity());
     }
 

@@ -31,6 +31,7 @@ import android.util.Log;
 import android.util.Size;
 import android.view.Surface;
 import android.view.TextureView;
+import android.view.WindowManager;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -394,8 +395,7 @@ public class Camera2Session {
      * @param height The height of available size for camera preview
      */
     private void setUpCameraOutputs(int width, int height) {
-        Activity activity = getActivity();
-        CameraManager manager = (CameraManager) activity.getSystemService(Context.CAMERA_SERVICE);
+        CameraManager manager = (CameraManager) parentContext.getSystemService(Context.CAMERA_SERVICE);
         try {
             for (String cameraId : manager.getCameraIdList()) {
                 CameraCharacteristics characteristics
@@ -424,7 +424,8 @@ public class Camera2Session {
 
                 // Find out if we need to swap dimension to get the preview size relative to sensor
                 // coordinate.
-                int displayRotation = activity.getWindowManager().getDefaultDisplay().getRotation();
+                WindowManager wm = (WindowManager) parentContext.getSystemService(Context.WINDOW_SERVICE);
+                int displayRotation = wm.getDefaultDisplay().getRotation();
                 //noinspection ConstantConditions
                 mSensorOrientation = characteristics.get(CameraCharacteristics.SENSOR_ORIENTATION);
                 boolean swappedDimensions = false;
@@ -446,7 +447,7 @@ public class Camera2Session {
                 }
 
                 Point displaySize = new Point();
-                activity.getWindowManager().getDefaultDisplay().getSize(displaySize);
+                wm.getDefaultDisplay().getSize(displaySize);
                 int rotatedPreviewWidth = width;
                 int rotatedPreviewHeight = height;
                 int maxPreviewWidth = displaySize.x;
@@ -507,15 +508,14 @@ public class Camera2Session {
      * Opens the camera specified by {@link Camera2BasicFragment#mCameraId}.
      */
     private void openCamera(int width, int height) {
-        if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.CAMERA)
+        if (ContextCompat.checkSelfPermission(parentContext, Manifest.permission.CAMERA)
                 != PackageManager.PERMISSION_GRANTED) {
             requestCameraPermission();
             return;
         }
         setUpCameraOutputs(width, height);
         configureTransform(width, height);
-        Activity activity = getActivity();
-        CameraManager manager = (CameraManager) activity.getSystemService(Context.CAMERA_SERVICE);
+        CameraManager manager = (CameraManager) parentContext.getSystemService(Context.CAMERA_SERVICE);
         try {
             if (!mCameraOpenCloseLock.tryAcquire(2500, TimeUnit.MILLISECONDS)) {
                 throw new RuntimeException("Time out waiting to lock camera opening.");
@@ -651,11 +651,11 @@ public class Camera2Session {
      * @param viewHeight The height of `mTextureView`
      */
     private void configureTransform(int viewWidth, int viewHeight) {
-        Activity activity = getActivity();
-        if (null == mTextureView || null == mPreviewSize || null == activity) {
+        if (null == mTextureView || null == mPreviewSize || null == parentContext) {
             return;
         }
-        int rotation = activity.getWindowManager().getDefaultDisplay().getRotation();
+        WindowManager wm = (WindowManager) parentContext.getSystemService(Context.WINDOW_SERVICE);
+        int rotation = wm.getDefaultDisplay().getRotation();
         Matrix matrix = new Matrix();
         RectF viewRect = new RectF(0, 0, viewWidth, viewHeight);
         RectF bufferRect = new RectF(0, 0, mPreviewSize.getHeight(), mPreviewSize.getWidth());
@@ -727,8 +727,7 @@ public class Camera2Session {
      */
     private void captureStillPicture() {
         try {
-            final Activity activity = getActivity();
-            if (null == activity || null == mCameraDevice) {
+            if (null == parentContext || null == mCameraDevice) {
                 return;
             }
             // This is the CaptureRequest.Builder that we use to take a picture.
@@ -744,7 +743,7 @@ public class Camera2Session {
             // Orientation of the camera
             // No longer uses Conversion from screen rotation to JPEG orientation, revised to use this patch:
             //    https://github.com/googlesamples/android-Camera2Basic/pull/27/commits/c7d33085f7642ebc8b677e170ec5fdee122c1000
-            CameraManager manager = (CameraManager) activity.getSystemService(Context.CAMERA_SERVICE);
+            CameraManager manager = (CameraManager) parentContext.getSystemService(Context.CAMERA_SERVICE);
             CameraCharacteristics cameraCharacteristics = manager.getCameraCharacteristics("" + mCameraDevice.getId());
             int rotation = cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION);
             captureBuilder.set(CaptureRequest.JPEG_ORIENTATION, rotation);
