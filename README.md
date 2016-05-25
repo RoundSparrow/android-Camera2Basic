@@ -10,6 +10,14 @@ Bugs not yet fixed
 23 https://github.com/googlesamples/android-Camera2Basic/issues/23
 38 https://github.com/googlesamples/android-Camera2Basic/issues/38
 
+Testing of Bugs not completed
+-----------------------------
+
+8 https://github.com/googlesamples/android-Camera2Basic/issues/8
+9 https://github.com/googlesamples/android-Camera2Basic/issues/9
+10 https://github.com/googlesamples/android-Camera2Basic/issues/10
+24 https://github.com/googlesamples/android-Camera2Basic/issues/24
+
 License
 -------
 
