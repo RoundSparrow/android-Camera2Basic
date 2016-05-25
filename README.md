@@ -8,6 +8,7 @@ Bugs not yet fixed
 ------------------
 
 23 https://github.com/googlesamples/android-Camera2Basic/issues/23
+38 https://github.com/googlesamples/android-Camera2Basic/issues/38
 
 License
 -------
