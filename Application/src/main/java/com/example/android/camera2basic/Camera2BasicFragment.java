@@ -51,7 +51,6 @@ import android.support.v13.app.FragmentCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.util.Size;
-import android.util.SparseIntArray;
 import android.view.LayoutInflater;
 import android.view.Surface;
 import android.view.TextureView;
@@ -436,7 +435,15 @@ public class Camera2BasicFragment extends Fragment
         // a camera and start preview from here (otherwise, we wait until the surface is ready in
         // the SurfaceTextureListener).
         if (mTextureView.isAvailable()) {
-            openCamera(mTextureView.getWidth(), mTextureView.getHeight());
+            try {
+                // Fix for issue #42 https://github.com/googlesamples/android-Camera2Basic/issues/42
+                closeCamera();
+                openCamera(mTextureView.getWidth(), mTextureView.getHeight());
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }
         } else {
             mTextureView.setSurfaceTextureListener(mSurfaceTextureListener);
         }
@@ -582,6 +589,8 @@ public class Camera2BasicFragment extends Fragment
             // device this code runs.
             ErrorDialog.newInstance(getString(R.string.camera_error))
                     .show(getChildFragmentManager(), FRAGMENT_DIALOG);
+        } catch (IllegalArgumentException | SecurityException ex) {
+            ex.printStackTrace();
         }
     }
 
@@ -602,11 +611,15 @@ public class Camera2BasicFragment extends Fragment
             if (!mCameraOpenCloseLock.tryAcquire(2500, TimeUnit.MILLISECONDS)) {
                 throw new RuntimeException("Time out waiting to lock camera opening.");
             }
+            Log.i(TAG, "manager.openCamera before");
             manager.openCamera(mCameraId, mStateCallback, mBackgroundHandler);
+            Log.i(TAG, "manager.openCamera after");
         } catch (CameraAccessException e) {
             e.printStackTrace();
         } catch (InterruptedException e) {
             throw new RuntimeException("Interrupted while trying to lock camera opening.", e);
+        } catch (IllegalArgumentException | SecurityException ex) {
+            ex.printStackTrace();
         }
     }
 
@@ -715,6 +728,8 @@ public class Camera2BasicFragment extends Fragment
             );
         } catch (CameraAccessException e) {
             e.printStackTrace();
+        } catch (IllegalArgumentException | SecurityException ex) {
+            ex.printStackTrace();
         }
     }
 
@@ -772,6 +787,8 @@ public class Camera2BasicFragment extends Fragment
                     mBackgroundHandler);
         } catch (CameraAccessException e) {
             e.printStackTrace();
+        } catch (IllegalArgumentException | SecurityException ex) {
+            ex.printStackTrace();
         }
     }
 
@@ -790,6 +807,8 @@ public class Camera2BasicFragment extends Fragment
                     mBackgroundHandler);
         } catch (CameraAccessException e) {
             e.printStackTrace();
+        } catch (IllegalArgumentException | SecurityException ex) {
+            ex.printStackTrace();
         }
     }
 
@@ -838,6 +857,8 @@ public class Camera2BasicFragment extends Fragment
             mCaptureSession.capture(captureBuilder.build(), CaptureCallback, null);
         } catch (CameraAccessException e) {
             e.printStackTrace();
+        } catch (IllegalArgumentException | SecurityException ex) {
+            ex.printStackTrace();
         }
     }
 
@@ -860,6 +881,8 @@ public class Camera2BasicFragment extends Fragment
                     mBackgroundHandler);
         } catch (CameraAccessException e) {
             e.printStackTrace();
+        } catch (IllegalArgumentException | SecurityException ex) {
+            ex.printStackTrace();
         }
     }
 
