@@ -302,10 +302,20 @@ public class Camera2BasicFragment extends Fragment
                         // ToDo: BUG - See Issue https://github.com/googlesamples/android-Camera2Basic/issues/33
                         mState = STATE_PICTURE_TAKEN;
                         captureStillPicture();
-                    } else if (CaptureResult.CONTROL_AF_STATE_PASSIVE_UNFOCUSED == afState) {
-                        Log.i(TAG, "takePicture STATE_WAITING_LOCK afState CONTROL_AF_STATE_PASSIVE_UNFOCUSED - waiting on Auto-Focus?");
-                    } else {
-                        Log.w(TAG, "takePicture STATE_WAITING_LOCK afState UNMATCHED!! " + afState);
+                    }
+                    else {
+                        switch (afState)
+                        {
+                            case CaptureResult.CONTROL_AF_STATE_PASSIVE_UNFOCUSED:
+                            case CaptureResult.CONTROL_AF_STATE_PASSIVE_SCAN:
+                            case CaptureResult.CONTROL_AF_STATE_PASSIVE_FOCUSED:
+                            case CaptureResult.CONTROL_AF_STATE_ACTIVE_SCAN:
+                                Log.i(TAG, "takePicture STATE_WAITING_LOCK afState " + afState + " - waiting on Auto-Focus?");
+                                break;
+                            default:
+                                Log.w(TAG, "takePicture STATE_WAITING_LOCK afState UNMATCHED!! " + afState);
+                                break;
+                        }
                     }
                     break;
                 }
