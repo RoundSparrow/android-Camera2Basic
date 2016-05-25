@@ -34,6 +34,8 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 
 public class Camera2BasicFragment extends Fragment
@@ -48,6 +50,35 @@ public class Camera2BasicFragment extends Fragment
     private static final String TAG = "Camera2BasicFragment";
 
     private static Camera2Session cameraSession;
+
+
+    // Called in Android UI's main thread
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEventMainThread(EventUserInterface event)
+    {
+        switch (event.eventCode)
+        {
+            case EventUserInterface.CAMERA_ERROR_SPOTA:
+                Activity activity = getActivity();
+                if (null != activity) {
+                    activity.finish();
+                }
+                break;
+            case EventUserInterface.CAMERA_CAMERA2_API_DIALOG0:
+                ErrorDialog.newInstance(getString(R.string.camera_error))
+                        .show(getChildFragmentManager(), FRAGMENT_DIALOG);
+                break;
+            case EventUserInterface.CAMERA_PERMISSION_NEEDED0:
+                requestCameraPermission();
+                break;
+            case EventUserInterface.CAMERA_CONFIGURE_FAILED0:
+                showToast("CameraConfigure Failed");
+                break;
+            case EventUserInterface.CAPTURE_IMAGE_SAVED0:
+                showToast("Saved: " + event.eventPayload0);
+                break;
+        }
+    }
 
     /**
      * Shows a {@link Toast} on the UI thread.
@@ -79,6 +110,8 @@ public class Camera2BasicFragment extends Fragment
 
     @Override
     public void onViewCreated(final View view, Bundle savedInstanceState) {
+        cameraSession = new Camera2Session(getActivity());
+
         view.findViewById(R.id.picture).setOnClickListener(this);
         view.findViewById(R.id.info).setOnClickListener(this);
         AutoFitTextureView textureView = (AutoFitTextureView) view.findViewById(R.id.texture);
@@ -90,7 +123,6 @@ public class Camera2BasicFragment extends Fragment
         super.onActivityCreated(savedInstanceState);
         Log.i(TAG, "onActivityCreated");
         EventBus.getDefault().register(this);
-        cameraSession = new Camera2Session(getActivity());
     }
 
     @Override
@@ -147,8 +179,6 @@ public class Camera2BasicFragment extends Fragment
             }
         }
     }
-
-
 
 
     /**

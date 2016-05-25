@@ -33,6 +33,8 @@ import android.view.Surface;
 import android.view.TextureView;
 import android.view.WindowManager;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -174,10 +176,7 @@ public class Camera2Session {
             mCameraOpenCloseLock.release();
             cameraDevice.close();
             mCameraDevice = null;
-            Activity activity = getActivity();
-            if (null != activity) {
-                activity.finish();
-            }
+            EventBus.getDefault().post(new EventUserInterface(EventUserInterface.CAMERA_ERROR_SPOTA));
         }
 
     };
@@ -497,8 +496,7 @@ public class Camera2Session {
         } catch (NullPointerException e) {
             // Currently an NPE is thrown when the Camera2API is used but not supported on the
             // device this code runs.
-            ErrorDialog.newInstance(getString(R.string.camera_error))
-                    .show(getChildFragmentManager(), FRAGMENT_DIALOG);
+            EventBus.getDefault().post(new EventUserInterface(EventUserInterface.CAMERA_CAMERA2_API_DIALOG0));
         } catch (IllegalArgumentException | SecurityException ex) {
             ex.printStackTrace();
         }
@@ -510,7 +508,7 @@ public class Camera2Session {
     private void openCamera(int width, int height) {
         if (ContextCompat.checkSelfPermission(parentContext, Manifest.permission.CAMERA)
                 != PackageManager.PERMISSION_GRANTED) {
-            requestCameraPermission();
+            EventBus.getDefault().post(new EventUserInterface(EventUserInterface.CAMERA_PERMISSION_NEEDED0));
             return;
         }
         setUpCameraOutputs(width, height);
@@ -631,7 +629,8 @@ public class Camera2Session {
                         @Override
                         public void onConfigureFailed(
                                 @NonNull CameraCaptureSession cameraCaptureSession) {
-                            showToast("Failed");
+                            Log.e(TAG, "createCaptureSession onConfigureRailed");
+                            EventBus.getDefault().post(new EventUserInterface(EventUserInterface.CAMERA_CONFIGURE_FAILED0));
                         }
                     }, null
             );
@@ -756,7 +755,7 @@ public class Camera2Session {
                                                @NonNull CaptureRequest request,
                                                @NonNull TotalCaptureResult result) {
                     // ToDo: runtime testing shows that this message actually shows "Saved" before the actual save is completed. Say "Captured" instead?
-                    showToast("Saved: " + mFile);
+                    EventBus.getDefault().post(new EventUserInterface(EventUserInterface.CAPTURE_IMAGE_SAVED0, mFile.toString()));
                     Log.d(TAG, "Saved: " + mFile.toString());
                     unlockFocus();
                 }
