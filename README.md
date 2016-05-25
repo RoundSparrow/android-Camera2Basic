@@ -4,6 +4,11 @@ Android Camera2Basic Sample
 
 This is a fork with some comments and fixes added. Please reference the original.
 
+Bugs not yet fixed
+------------------
+
+23 https://github.com/googlesamples/android-Camera2Basic/issues/23
+
 License
 -------
 

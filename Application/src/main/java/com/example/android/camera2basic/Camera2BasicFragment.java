@@ -295,6 +295,14 @@ public class Camera2BasicFragment extends Fragment
                         } else {
                             runPrecaptureSequence();
                         }
+                    } else if (CaptureResult.CONTROL_AF_STATE_INACTIVE == afState) {
+                        // Not all devices have AutoFocus
+                        // ToDo: check carmera characteristics for support of AF on this lense?
+                        // ToDo: BUG - See Issue https://github.com/googlesamples/android-Camera2Basic/issues/33
+                        mState = STATE_PICTURE_TAKEN;
+                        captureStillPicture();
+                    } else {
+                        Log.w(TAG, "takePicture STATE_WAITING_LOCK aeState UNMATCHED!! " + afState);
                     }
                     break;
                 }
