@@ -49,6 +49,12 @@ import java.util.concurrent.TimeUnit;
  */
 public class Camera2Session {
 
+    public Camera2Session(Context context)
+    {
+        parentContext = context;
+        mFile = new File(context.getExternalFilesDir(null), "pic.jpg");
+    }
+
     /**
      * Tag for the {@link Log}.
      */
@@ -469,7 +475,7 @@ public class Camera2Session {
                         maxPreviewHeight, largest);
 
                 // We fit the aspect ratio of TextureView to the size of preview we picked.
-                int orientation = getResources().getConfiguration().orientation;
+                int orientation = parentContext.getResources().getConfiguration().orientation;
                 if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
                     mTextureView.setAspectRatio(
                             mPreviewSize.getWidth(), mPreviewSize.getHeight());
@@ -672,7 +678,7 @@ public class Camera2Session {
     /**
      * Initiate a still image capture.
      */
-    private void takePicture() {
+    protected void takePicture() {
         lockFocus();
     }
 
@@ -804,8 +810,6 @@ public class Camera2Session {
     }
 
 
-
-
     /**
      * Saves a JPEG {@link Image} into the specified {@link File}.
      */
@@ -865,4 +869,46 @@ public class Camera2Session {
 
     }
 
+
+
+    /**
+     * =============================================================================================
+     * == Integration
+     */
+
+    private Context parentContext;
+
+    public void activityOnResume()
+    {
+        startBackgroundThread();
+
+        // When the screen is turned off and turned back on, the SurfaceTexture is already
+        // available, and "onSurfaceTextureAvailable" will not be called. In that case, we can open
+        // a camera and start preview from here (otherwise, we wait until the surface is ready in
+        // the SurfaceTextureListener).
+        if (mTextureView.isAvailable()) {
+            try {
+                // Fix for issue #42 https://github.com/googlesamples/android-Camera2Basic/issues/42
+                closeCamera();
+                openCamera(mTextureView.getWidth(), mTextureView.getHeight());
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+        } else {
+            mTextureView.setSurfaceTextureListener(mSurfaceTextureListener);
+        }
+    }
+
+
+    public void activityOnPause()
+    {
+        closeCamera();
+        stopBackgroundThread();
+    }
+
+    public void setPreviewView(AutoFitTextureView textureView) {
+        mTextureView = textureView;
+    }
 }
