@@ -4,19 +4,25 @@ Android Camera2Basic Sample
 
 This is a fork with some comments and fixes added. Please reference the original.
 
+Changes in this Fork
+--------------------
+Some bugs are fixed from open Issues in the fork-source project.  Comments should detail the Issue number fixed.
+
+There is a brach named Camera2SessionA that splits the android user interface from the camera session. The general desire was to make the class smaller and code easier to revise and analyze.
+
 Bugs not yet fixed
 ------------------
 
-23 https://github.com/googlesamples/android-Camera2Basic/issues/23
-38 https://github.com/googlesamples/android-Camera2Basic/issues/38
+   23 https://github.com/googlesamples/android-Camera2Basic/issues/23
+   38 https://github.com/googlesamples/android-Camera2Basic/issues/38
 
 Testing of Bugs not completed
 -----------------------------
 
-8 https://github.com/googlesamples/android-Camera2Basic/issues/8
-9 https://github.com/googlesamples/android-Camera2Basic/issues/9
-10 https://github.com/googlesamples/android-Camera2Basic/issues/10
-24 https://github.com/googlesamples/android-Camera2Basic/issues/24
+    8 https://github.com/googlesamples/android-Camera2Basic/issues/8
+    9 https://github.com/googlesamples/android-Camera2Basic/issues/9
+   10 https://github.com/googlesamples/android-Camera2Basic/issues/10
+   24 https://github.com/googlesamples/android-Camera2Basic/issues/24
 
 License
 -------
