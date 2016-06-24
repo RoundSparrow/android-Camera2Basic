@@ -762,6 +762,7 @@ public class Camera2Session {
             int rotation = cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION);
             captureBuilder.set(CaptureRequest.JPEG_ORIENTATION, rotation);
 
+            // Issue #45 source code change
             CameraCaptureSession.CaptureCallback captureCallback
                     = new CameraCaptureSession.CaptureCallback() {
 
